@@ -1,0 +1,111 @@
+{
+  "name": "Shilton Rodrigues",
+  "title": "Full Stack Developer",
+  "email": "shiltonrodrigues04@gmail.com",
+  "phone": "+91 9480984996",
+  "location": "Bengaluru, India",
+  "links": {
+    "linkedin": "linkedin.com/in/shilton-rodrigues",
+    "github": "github.com/shilton04",
+    "portfolio": "shiltonprofile04.web.app"
+  },
+  "summary": "Full Stack Developer with 2+ years of experience building responsive, production-grade web applications across the stack — Vue.js 3, React.js on the frontend and Node.js, Express.js, MongoDB on the backend, with working knowledge of Java and Kotlin. Hands-on experience designing and shipping AI-powered features, including LLM-integrated chatbots and RAG (Retrieval-Augmented Generation) systems with streaming responses, error handling, retries, and rate limiting. Comfortable across the full web development lifecycle: design, development, testing, and deployment.",
+  "skills": [
+    "Vue.js 2 & 3",
+    "React.js",
+    "JavaScript",
+    "HTML5",
+    "CSS3",
+    "Vuetify",
+    "Bootstrap",
+    "Node.js",
+    "Express.js",
+    "REST API design",
+    "Microservices architecture",
+    "Java (working knowledge)",
+    "Kotlin",
+    "LLM API integration",
+    "RAG-based architecture",
+    "Chatbot development",
+    "Streaming responses",
+    "MongoDB",
+    "Mongoose",
+    "Docker",
+    "Jenkins",
+    "YAML / CI-CD automation",
+    "Git",
+    "Firebase deployment",
+    "Postman",
+    "Figma to UI implementation",
+    "Agile / Scrum"
+  ],
+  "experience": [
+    {
+      "company": "Ontrack Technologies Pvt. Ltd",
+      "role": "Front-End Developer",
+      "start": "2024-07",
+      "end": "Present",
+      "bullets": [
+        "Developed high-performance, responsive UIs using Vue.js, React.js, Vuetify, and Bootstrap, contributing full stack from UI to backend logic",
+        "Built and integrated AI-powered features — chatbots, call analysis, and content generation — using LLM APIs with RAG-based architecture",
+        "Integrated and tested REST APIs and microservices using Postman, and built secure backend logic with Node.js, Express.js, and MongoDB",
+        "Handled LLM integration with streaming responses, error handling, retries, and rate limiting for production microservices",
+        "Collaborated with designers to deliver production-ready UI from Figma designs; built reusable components and shared UI libraries",
+        "Implemented authentication flows, API integration, and modular frontend architecture following MVC and clean-code best practices",
+        "Contributed to Agile sprint planning, code reviews, and Git-based version control"
+      ]
+    },
+    {
+      "company": "Enhance KnowledgeWorks",
+      "role": "Intern – DevOps & Frontend",
+      "start": "2023-04",
+      "end": "2023-06",
+      "bullets": [
+        "Worked hands-on with Docker, Jenkins, Git, and YAML for CI/CD automation and deployment workflows",
+        "Built UI screens using Bootstrap, Node.js, and MongoDB, applying responsive design best practices"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Activities & Stay Booking Platform",
+      "stack": "Vue 3, Express.js, MongoDB",
+      "link": "gokarnatrips.web.app",
+      "description": "Built a full-stack booking platform with search, checkout, and payment gateway integration; designed and integrated an AI chatbot and AI trip planner using LLM APIs with RAG-based recommendations; deployed on Firebase."
+    },
+    {
+      "name": "WeFix – Android App",
+      "stack": "Kotlin, REST APIs, Firebase",
+      "link": "",
+      "description": "Built an app connecting skilled workers with customers using Kotlin, REST API integration, and responsive mobile UI layouts."
+    },
+    {
+      "name": "PG & Accommodation Finder",
+      "stack": "HTML, CSS, JavaScript",
+      "link": "",
+      "description": "Developed a location-based PG listing platform with a responsive, user-friendly interface."
+    },
+    {
+      "name": "Tourism Booking Website",
+      "stack": "HTML, PHP, MySQL, JavaScript",
+      "link": "",
+      "description": "Created a hotel/flight/activity booking portal covering full end-to-end web development."
+    }
+  ],
+  "education": [
+    {
+      "school": "Dayanand Sagar College of Engineering",
+      "degree": "Master of Computer Applications (M.C.A.)",
+      "year": "2021-2023"
+    },
+    {
+      "school": "Shri Guru Sudhindra BCA College",
+      "degree": "Bachelor of Computer Application (B.C.A.)",
+      "year": "2018-2021"
+    }
+  ],
+  "publications": [
+    "\"Data Mining Technology Based on Machine Learning Algorithms\" — IJSREM, Volume 07, Issue 08 (2023)"
+  ],
+  "languages": ["English", "Hindi", "Kannada", "Konkani"]
+}

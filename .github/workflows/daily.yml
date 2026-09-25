@@ -1,0 +1,45 @@
+name: Daily Job Agent
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 3:00 UTC = 8:30 AM IST daily
+  workflow_dispatch: {}     # lets you trigger it manually from the Actions tab too
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run pipeline
+        env:
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+          ADZUNA_COUNTRY: in
+          JSEARCH_API_KEY: ${{ secrets.JSEARCH_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          SEARCH_KEYWORDS: "Vue.js,React,Node.js,full stack developer"
+          SEARCH_LOCATION: "Bengaluru"
+          MATCH_THRESHOLD: "70"
+        run: node src/run.js
+
+      - name: Commit updated job database
+        run: |
+          git config user.name "job-agent-bot"
+          git config user.email "actions@github.com"
+          git add job-agent.db
+          git diff --staged --quiet || git commit -m "Update job tracking DB [skip ci]"
+          git push

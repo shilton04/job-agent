@@ -1,0 +1,19 @@
+{
+  "name": "job-agent",
+  "version": "1.0.0",
+  "description": "Daily job-search agent: finds jobs, scores them against your resume, tailors your resume/cover letter, preps applications, and emails you a review digest.",
+  "type": "module",
+  "main": "src/run.js",
+  "scripts": {
+    "start": "node src/run.js",
+    "test-fetch": "node -e \"import('./src/fetchJobs.js').then(m=>m.fetchAllJobs().then(j=>console.log(j.length,'jobs found')))\""
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "dotenv": "^16.4.5",
+    "nodemailer": "^6.9.14",
+    "playwright": "^1.47.0",
+    "puppeteer": "^23.4.0",
+    "node-fetch": "^3.3.2"
+  }
+}
