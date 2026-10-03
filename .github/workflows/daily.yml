@@ -25,14 +25,13 @@ jobs:
         env:
           ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
           ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
-          ADZUNA_COUNTRY: in
           JSEARCH_API_KEY: ${{ secrets.JSEARCH_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           SEARCH_KEYWORDS: "Vue.js,React,Node.js,full stack developer"
-          SEARCH_LOCATION: "Bengaluru"
+          SEARCH_LOCATIONS: "Bengaluru,India,Dubai,Europe,UK,Malta,Germany"
           MATCH_THRESHOLD: "70"
         run: node src/run.js
 

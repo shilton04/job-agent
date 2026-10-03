@@ -1,14 +1,15 @@
 import fetch from 'node-fetch';
 
-export async function fetchJSearchJobs(keywords, location) {
+export async function fetchJSearchJobs(keywords, { label, jsearchCountry }) {
   const apiKey = process.env.JSEARCH_API_KEY;
   if (!apiKey) {
     console.warn('[jsearch] Skipped: JSEARCH_API_KEY not set');
     return [];
   }
 
-  const query = encodeURIComponent(`${keywords.join(' ')} in ${location}`);
-  const url = `https://jsearch.p.rapidapi.com/search-v2?query=${query}&num_pages=1&date_posted=today`;
+  const query = encodeURIComponent(`(${keywords.join(' OR ')}) jobs in ${label}`);
+  const country = jsearchCountry ? `&country=${jsearchCountry}` : '';
+  const url = `https://jsearch.p.rapidapi.com/search-v2?query=${query}${country}&num_pages=1&date_posted=today`;
 
   const res = await fetch(url, {
     headers: {
@@ -17,7 +18,7 @@ export async function fetchJSearchJobs(keywords, location) {
     }
   });
   if (!res.ok) {
-    console.error('[jsearch] request failed', res.status, await res.text());
+    console.error(`[jsearch] request failed for "${label}"`, res.status, await res.text());
     return [];
   }
   const data = await res.json();
