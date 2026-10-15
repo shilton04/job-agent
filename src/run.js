@@ -1,56 +1,48 @@
 import 'dotenv/config';
 import fs from 'fs';
-import path from 'path';
 import { fetchAllJobs } from './fetchJobs.js';
-import { scoreJob, tailorResumeAndCoverLetter } from './scoreJob.js';
-import { renderResumeToPdf } from './renderPdf.js';
-import { prepareApplication } from './prepareApplication.js';
-import { sendDigestEmail } from './notify.js';
+import { scoreJob } from './scoreJob.js';
+import { mapWithConcurrency } from './concurrency.js';
+import { sendDigestEmail, sendScoringFailureAlert } from './notify.js';
 import { updateJob } from './db.js';
 
-const OUTPUT_DIR = path.resolve('output/pending-applications');
+// Tailored resume/cover-letter generation (tailorResumeAndCoverLetter + renderResumeToPdf +
+// prepareApplication) is paused for now — digest just carries match score + key highlights
+// per job instead of a full per-job application packet. Re-enable by restoring the loop
+// that used to follow scoring (see git history on this file).
 const THRESHOLD = Number(process.env.MATCH_THRESHOLD || 70);
+const SCORE_CONCURRENCY = Number(process.env.SCORE_CONCURRENCY || 5);
 
 async function main() {
   const resume = JSON.parse(fs.readFileSync('data/resume.json', 'utf-8'));
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
   const newJobs = await fetchAllJobs();
   const matched = [];
+  let failedCount = 0;
 
-  for (const job of newJobs) {
-    const { score, reason } = await scoreJob(resume, job);
-    updateJob(job.id, { status: 'scored', match_score: score, match_reason: reason });
-
-    if (score < THRESHOLD) {
-      updateJob(job.id, { status: 'skipped' });
-      continue;
-    }
-
-    console.log(`[run] Match: ${job.title} @ ${job.company} (${score}) — tailoring`);
-    let tailored;
-    try {
-      tailored = await tailorResumeAndCoverLetter(resume, job);
-    } catch (e) {
-      console.error(`[run] tailoring failed for ${job.id}`, e.message);
-      continue;
-    }
-
-    const resumePdfPath = path.join(OUTPUT_DIR, `${job.id}_resume.pdf`);
-    const coverLetterPath = path.join(OUTPUT_DIR, `${job.id}_cover_letter.txt`);
-    await renderResumeToPdf(tailored.resume, resumePdfPath);
-    fs.writeFileSync(coverLetterPath, tailored.coverLetter);
-
-    const prep = await prepareApplication(job, resumePdfPath, tailored.coverLetter, OUTPUT_DIR);
+  await mapWithConcurrency(newJobs, SCORE_CONCURRENCY, async job => {
+    const { score, reason, highlights, missingKeywords } = await scoreJob(resume, job);
+    if (reason === 'scoring failed') failedCount++;
 
     updateJob(job.id, {
-      status: prep.status,
-      resume_path: resumePdfPath,
-      cover_letter_path: coverLetterPath,
-      screenshot_path: prep.screenshotPath
+      status: score < THRESHOLD ? 'skipped' : 'scored',
+      match_score: score,
+      match_reason: reason,
+      match_highlights: JSON.stringify(highlights),
+      missing_keywords: JSON.stringify(missingKeywords)
     });
 
-    matched.push({ ...job, match_score: score, status: prep.status, resume_path: resumePdfPath });
+    if (score < THRESHOLD) return;
+
+    console.log(`[run] Match: ${job.title} @ ${job.company} (${score})`);
+    matched.push({ ...job, match_score: score, match_reason: reason, highlights, missingKeywords });
+  });
+
+  // If most scoring calls failed (bad/expired API key, quota exhausted, etc.) every
+  // job silently gets score 0 and the digest would just look like "no matches" with
+  // no indication anything is actually broken — so raise that explicitly instead.
+  if (newJobs.length > 0 && failedCount > newJobs.length * 0.5) {
+    await sendScoringFailureAlert(failedCount, newJobs.length);
   }
 
   await sendDigestEmail(matched);

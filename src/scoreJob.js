@@ -45,30 +45,59 @@ async function callGemini(prompt, attempt = 1) {
 }
 
 export async function scoreJob(resume, job) {
+  const experienceText = resume.experience
+    .map(e => `- ${e.role} @ ${e.company} (${e.start}–${e.end}): ${e.bullets.join("; ")}`)
+    .join("\n");
+  const projectsText = (resume.projects || [])
+    .map(p => `- ${p.name} (${p.stack}): ${p.description}`)
+    .join("\n");
+
   const prompt = `
-You are screening a job posting against a candidate's resume.
+You are an experienced technical recruiter doing the FIRST-PASS resume/ATS screen for a job posting —
+your job is to predict whether this candidate would actually survive that screen, not to give a generous
+"could theoretically do this" rating.
 
 RESUME SUMMARY:
 ${resume.summary}
 Skills: ${resume.skills.join(", ")}
-Recent experience: ${resume.experience[0]?.bullets.join("; ")}
+Experience:
+${experienceText}
+Projects:
+${projectsText}
 
 JOB TITLE: ${job.title}
 COMPANY: ${job.company}
 JOB DESCRIPTION:
 ${job.description}
 
+Scoring rubric (apply strictly):
+- Identify the job's explicit MUST-HAVE requirements (required skills, years of experience, seniority level)
+  separately from nice-to-haves. Weigh must-haves far more heavily.
+- If the role's seniority (e.g. Senior/Lead/Staff, or an explicit years-of-experience minimum) clearly exceeds
+  this candidate's ~2 years of experience, cap the score low (below 40) regardless of skill overlap — a resume
+  screen filters on seniority/years first.
+- If 2+ must-have technologies are absent from both skills and experience/projects, the score should not exceed 60.
+- A score above 80 should mean: right seniority band, and nearly all must-haves are demonstrably present.
+- Do not reward vague thematic similarity ("both are web dev") — score on concrete requirement overlap.
+
 Return ONLY a JSON object with this exact shape, no markdown:
-{ "score": <integer 0-100, how well the candidate fits this job>,
-  "reason": "<one sentence explaining the score>" }
+{ "score": <integer 0-100, realistic probability of passing an initial resume/ATS screen>,
+  "reason": "<one sentence citing the specific must-have match or mismatch driving the score>",
+  "highlights": ["<specific resume skill/experience/project to emphasize for this job>", "<up to 4 total>"],
+  "missingKeywords": ["<required skill/technology explicitly in the JD but absent from the resume>", "<up to 5 total>"] }
 `.trim();
 
   try {
     const result = await callGemini(prompt);
-    return { score: Number(result.score) || 0, reason: result.reason || "" };
+    return {
+      score: Number(result.score) || 0,
+      reason: result.reason || "",
+      highlights: Array.isArray(result.highlights) ? result.highlights : [],
+      missingKeywords: Array.isArray(result.missingKeywords) ? result.missingKeywords : []
+    };
   } catch (e) {
     console.error("[scoreJob] error", e.message);
-    return { score: 0, reason: "scoring failed" };
+    return { score: 0, reason: "scoring failed", highlights: [], missingKeywords: [] };
   }
 }
 

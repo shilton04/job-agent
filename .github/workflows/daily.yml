@@ -30,7 +30,7 @@ jobs:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
-          SEARCH_KEYWORDS: "Vue.js,React,Node.js,full stack developer"
+          SEARCH_KEYWORDS: "Vue.js,React,Node.js,full stack developer,frontend developer"
           SEARCH_LOCATIONS: "Bengaluru,India,Dubai,Europe,UK,Malta,Germany"
           MATCH_THRESHOLD: "70"
         run: node src/run.js

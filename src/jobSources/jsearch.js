@@ -9,7 +9,9 @@ export async function fetchJSearchJobs(keywords, { label, jsearchCountry }) {
 
   const query = encodeURIComponent(`(${keywords.join(' OR ')}) jobs in ${label}`);
   const country = jsearchCountry ? `&country=${jsearchCountry}` : '';
-  const url = `https://jsearch.p.rapidapi.com/search-v2?query=${query}${country}&num_pages=1&date_posted=today`;
+  const numPages = process.env.JSEARCH_NUM_PAGES || '3';
+  const datePosted = process.env.JSEARCH_DATE_POSTED || 'week';
+  const url = `https://jsearch.p.rapidapi.com/search-v2?query=${query}${country}&num_pages=${numPages}&date_posted=${datePosted}`;
 
   const res = await fetch(url, {
     headers: {

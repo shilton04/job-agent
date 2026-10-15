@@ -17,16 +17,36 @@ export async function renderResumeToPdf(resume, outputPath) {
   `).join('');
   const educationHtml = resume.education.map(e => `<p>${escapeHtml(e.degree)}, ${escapeHtml(e.school)} (${e.year})</p>`).join('');
 
+  const links = resume.links || {};
+  const linksHtml = Object.entries(links)
+    .filter(([, url]) => url)
+    .map(([, url]) => `<a href="https://${escapeHtml(url)}">${escapeHtml(url)}</a>`)
+    .join(' · ');
+
+  const projectsHtml = (resume.projects || []).map(p => `
+    <div class="project">
+      <div class="project-header">${escapeHtml(p.name)} <span class="project-stack">(${escapeHtml(p.stack)})</span></div>
+      <p>${escapeHtml(p.description)}${p.link ? ` — <a href="https://${escapeHtml(p.link)}">${escapeHtml(p.link)}</a>` : ''}</p>
+    </div>
+  `).join('');
+
+  const languagesLine = (resume.languages || []).length ? `Languages: ${resume.languages.map(escapeHtml).join(', ')}` : '';
+  const publicationsLine = (resume.publications || []).length ? `Publications: ${resume.publications.map(escapeHtml).join('; ')}` : '';
+
   html = html
     .replace('{{name}}', escapeHtml(resume.name))
     .replace('{{title}}', escapeHtml(resume.title))
     .replace('{{email}}', escapeHtml(resume.email))
     .replace('{{phone}}', escapeHtml(resume.phone))
     .replace('{{location}}', escapeHtml(resume.location))
+    .replace('{{linksHtml}}', linksHtml)
     .replace('{{summary}}', escapeHtml(resume.summary))
     .replace('{{skillsHtml}}', skillsHtml)
     .replace('{{experienceHtml}}', experienceHtml)
-    .replace('{{educationHtml}}', educationHtml);
+    .replace('{{projectsHtml}}', projectsHtml)
+    .replace('{{educationHtml}}', educationHtml)
+    .replace('{{languagesLine}}', languagesLine)
+    .replace('{{publicationsLine}}', publicationsLine);
 
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage();

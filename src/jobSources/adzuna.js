@@ -13,16 +13,23 @@ export async function fetchAdzunaJobs(keywords, { adzunaCountry: country, adzuna
   }
 
   const query = encodeURIComponent(keywords.join(' '));
-  const url = `https://api.adzuna.com/v1/api/jobs/${country}/search/1?app_id=${appId}&app_key=${appKey}&results_per_page=20&what_or=${query}&where=${encodeURIComponent(where || '')}&content-type=application/json`;
+  const pages = Number(process.env.ADZUNA_PAGES || 2);
+  const results = [];
 
-  const res = await fetch(url);
-  if (!res.ok) {
-    console.error(`[adzuna] request failed for "${label}"`, res.status, await res.text());
-    return [];
+  for (let page = 1; page <= pages; page++) {
+    const url = `https://api.adzuna.com/v1/api/jobs/${country}/search/${page}?app_id=${appId}&app_key=${appKey}&results_per_page=50&what_or=${query}&where=${encodeURIComponent(where || '')}&content-type=application/json`;
+
+    const res = await fetch(url);
+    if (!res.ok) {
+      console.error(`[adzuna] request failed for "${label}" (page ${page})`, res.status, await res.text());
+      break;
+    }
+    const data = await res.json();
+    if (!data.results?.length) break;
+    results.push(...data.results);
   }
-  const data = await res.json();
 
-  return (data.results || []).map(j => ({
+  return results.map(j => ({
     id: `adzuna_${j.id}`,
     source: 'adzuna',
     title: j.title,
